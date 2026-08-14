@@ -81,4 +81,8 @@ public class TaskManager {
 
         return unfinishedTasks;
     }
+
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(tasks);
+    }
 }

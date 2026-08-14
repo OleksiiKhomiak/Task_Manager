@@ -2,24 +2,50 @@ package app;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.Priority;
+import model.Task;
+import model.TaskStatus;
+import service.TaskManager;
+import view.MainView;
 
 public class TaskManagerApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        Label title = new Label("Task Manager");
-        Button newTaskButton = new Button("New Task");
 
-        VBox layout = new VBox(20);
-        layout.getChildren().addAll(title, newTaskButton);
+        TaskManager taskManager = new TaskManager();
 
-        Scene scene = new Scene(layout, 800, 500);
+        Task task1 = new Task(
+                1,
+                "Finish PDP",
+                "Finish Personal Development Plan",
+                Priority.HIGH
+        );
+
+        Task task2 = new Task(
+                2,
+                "Build JavaFX interface",
+                "Create GUI for Task Manager",
+                Priority.MEDIUM
+        );
+
+        task2.setStatus(TaskStatus.IN_PROGRESS);
+
+        taskManager.createTask(task1);
+        taskManager.createTask(task2);
+
+        MainView mainView = new MainView(taskManager);
+
+        Scene scene = new Scene(
+                mainView.createView(),
+                1000,
+                650
+        );
 
         stage.setTitle("Task Manager");
+        stage.setMinWidth(850);
+        stage.setMinHeight(550);
         stage.setScene(scene);
         stage.show();
     }
