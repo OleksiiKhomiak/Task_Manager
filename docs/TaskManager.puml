@@ -1,0 +1,91 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+package model {
+
+    class User {
+        - id : int
+        - name : String
+        - email : String
+
+        + User(id : int, name : String, email : String)
+        + getId() : int
+        + getName() : String
+        + getEmail() : String
+    }
+
+    class Task {
+        - id : int
+        - title : String
+        - description : String
+        - priority : Priority
+        - status : TaskStatus
+        - assignedUser : User
+
+        + Task(id : int, title : String, description : String, priority : Priority)
+        + getId() : int
+        + getTitle() : String
+        + getDescription() : String
+        + getPriority() : Priority
+        + getStatus() : TaskStatus
+        + getAssignedUser() : User
+        + setPriority(priority : Priority) : void
+        + setStatus(status : TaskStatus) : void
+        + assignUser(user : User) : void
+    }
+
+    class Project {
+        - id : int
+        - name : String
+        - tasks : List<Task>
+
+        + Project(id : int, name : String)
+        + getId() : int
+        + getName() : String
+        + getTasks() : List<Task>
+        + addTask(task : Task) : void
+        + removeTask(task : Task) : void
+    }
+
+    enum Priority {
+        LOW
+        MEDIUM
+        HIGH
+    }
+
+    enum TaskStatus {
+        TODO
+        IN_PROGRESS
+        DONE
+    }
+}
+
+package service {
+
+    class TaskManager {
+        - users : List<User>
+        - projects : List<Project>
+        - tasks : List<Task>
+
+        + TaskManager()
+        + addUser(user : User) : void
+        + addProject(project : Project) : void
+        + createTask(task : Task) : void
+        + getTaskById(id : int) : Task
+        + changeTaskStatus(id : int, status : TaskStatus) : void
+        + setTaskPriority(id : int, priority : Priority) : void
+        + getUnfinishedTasks() : List<Task>
+    }
+}
+
+User "1" <-- "0..*" Task : assigned user
+Project "1" o-- "0..*" Task : contains
+Task --> Priority
+Task --> TaskStatus
+
+TaskManager o-- User
+TaskManager o-- Project
+TaskManager o-- Task
+
+@enduml
