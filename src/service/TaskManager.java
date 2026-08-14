@@ -30,6 +30,17 @@ public class TaskManager {
     }
 
     public void createTask(Task task) {
+
+        if (task == null) {
+            throw new IllegalArgumentException("Task cannot be null.");
+        }
+
+        if (getTaskById(task.getId()) != null) {
+            throw new IllegalArgumentException(
+                    "Task with ID " + task.getId() + " already exists."
+            );
+        }
+
         tasks.add(task);
     }
 

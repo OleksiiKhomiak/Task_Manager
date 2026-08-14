@@ -110,4 +110,53 @@ class TaskManagerTest {
         assertTrue(unfinishedTasks.contains(task2));
         assertTrue(unfinishedTasks.contains(task3));
     }
+    @Test
+    void taskWithEmptyTitleThrowsException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Task(
+                        1,
+                        "",
+                        "Description",
+                        Priority.HIGH
+                )
+        );
+    }
+
+    @Test
+    void taskWithInvalidIdThrowsException() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Task(
+                        0,
+                        "Invalid task",
+                        "Description",
+                        Priority.MEDIUM
+                )
+        );
+    }
+
+    @Test
+    void duplicateTaskIdThrowsException() {
+        Task task1 = new Task(
+                1,
+                "First task",
+                "Description",
+                Priority.HIGH
+        );
+
+        Task task2 = new Task(
+                1,
+                "Second task",
+                "Description",
+                Priority.LOW
+        );
+
+        taskManager.createTask(task1);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> taskManager.createTask(task2)
+        );
+    }
 }

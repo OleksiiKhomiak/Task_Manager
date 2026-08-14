@@ -10,6 +10,19 @@ public class Task {
     private User assignedUser;
 
     public Task(int id, String title, String description, Priority priority) {
+
+        if (id <= 0) {
+            throw new IllegalArgumentException("Task ID must be greater than 0.");
+        }
+
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Task title cannot be empty.");
+        }
+
+        if (priority == null) {
+            throw new IllegalArgumentException("Task priority cannot be null.");
+        }
+
         this.id = id;
         this.title = title;
         this.description = description;
