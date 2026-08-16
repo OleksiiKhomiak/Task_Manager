@@ -85,4 +85,37 @@ public class TaskManager {
     public List<Task> getAllTasks() {
         return new ArrayList<>(tasks);
     }
+
+    public boolean updateTask(
+            int id,
+            String title,
+            String description,
+            Priority priority,
+            TaskStatus status
+    ) {
+
+        Task task = getTaskById(id);
+
+        if (task == null) {
+            return false;
+        }
+
+        task.setTitle(title);
+        task.setDescription(description);
+        task.setPriority(priority);
+        task.setStatus(status);
+
+        return true;
+    }
+
+    public boolean removeTask(int id) {
+
+        Task task = getTaskById(id);
+
+        if (task == null) {
+            return false;
+        }
+
+        return tasks.remove(task);
+    }
 }

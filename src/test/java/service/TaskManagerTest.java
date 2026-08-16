@@ -159,4 +159,47 @@ class TaskManagerTest {
                 () -> taskManager.createTask(task2)
         );
     }
+    @Test
+    void updateTaskChangesTaskInformation() {
+        Task task = new Task(
+                1,
+                "Old title",
+                "Old description",
+                Priority.LOW
+        );
+
+        taskManager.createTask(task);
+
+        boolean result = taskManager.updateTask(
+                1,
+                "New title",
+                "New description",
+                Priority.HIGH,
+                TaskStatus.IN_PROGRESS
+        );
+
+        assertTrue(result);
+        assertEquals("New title", task.getTitle());
+        assertEquals("New description", task.getDescription());
+        assertEquals(Priority.HIGH, task.getPriority());
+        assertEquals(TaskStatus.IN_PROGRESS, task.getStatus());
+    }
+
+    @Test
+    void removeTaskRemovesTask() {
+        Task task = new Task(
+                1,
+                "Delete me",
+                "Task to delete",
+                Priority.MEDIUM
+        );
+
+        taskManager.createTask(task);
+
+        boolean result = taskManager.removeTask(1);
+
+        assertTrue(result);
+        assertNull(taskManager.getTaskById(1));
+        assertEquals(0, taskManager.getAllTasks().size());
+    }
 }

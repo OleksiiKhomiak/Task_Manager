@@ -14,6 +14,7 @@ public class MainView {
 
     private final TaskManager taskManager;
     private final ObservableList<Task> tasks;
+    private TableView<Task> taskTable;
 
     public MainView(TaskManager taskManager) {
         this.taskManager = taskManager;
@@ -88,13 +89,21 @@ public class MainView {
         Button newTaskButton = new Button("+ New Task");
         newTaskButton.setOnAction(event -> showNewTaskDialog());
 
+        Button editTaskButton = new Button("Edit");
+        Button deleteTaskButton = new Button("Delete");
+
+        editTaskButton.setOnAction(event -> editSelectedTask());
+        deleteTaskButton.setOnAction(event -> deleteSelectedTask());
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         HBox topBar = new HBox(
-                20,
+                10,
                 title,
                 spacer,
+                editTaskButton,
+                deleteTaskButton,
                 newTaskButton
         );
 
@@ -105,7 +114,7 @@ public class MainView {
 
     private TableView<Task> createTaskTable() {
 
-        TableView<Task> table = new TableView<>();
+        taskTable = new TableView<>();
 
         TableColumn<Task, String> titleColumn =
                 new TableColumn<>("Title");
@@ -138,20 +147,20 @@ public class MainView {
         priorityColumn.setPrefWidth(130);
         statusColumn.setPrefWidth(170);
 
-        table.getColumns().addAll(
+        taskTable.getColumns().addAll(
                 titleColumn,
                 priorityColumn,
                 statusColumn
         );
 
-        table.setItems(tasks);
+        taskTable.setItems(tasks);
 
         BorderPane.setMargin(
-                table,
+                taskTable,
                 new Insets(0, 25, 25, 25)
         );
 
-        return table;
+        return taskTable;
     }
     private void showNewTaskDialog() {
 
@@ -252,5 +261,166 @@ public class MainView {
         }
 
         return maxId + 1;
+    }
+    private void editSelectedTask() {
+
+        Task selectedTask =
+                taskTable.getSelectionModel().getSelectedItem();
+
+        if (selectedTask == null) {
+            showWarning(
+                    "No task selected",
+                    "Please select a task to edit."
+            );
+            return;
+        }
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+
+        dialog.setTitle("Edit Task");
+        dialog.setHeaderText("Edit task");
+
+        ButtonType saveButtonType = new ButtonType(
+                "Save",
+                ButtonBar.ButtonData.OK_DONE
+        );
+
+        dialog.getDialogPane().getButtonTypes().addAll(
+                saveButtonType,
+                ButtonType.CANCEL
+        );
+
+        TextField titleField =
+                new TextField(selectedTask.getTitle());
+
+        TextArea descriptionArea =
+                new TextArea(selectedTask.getDescription());
+
+        descriptionArea.setPrefRowCount(4);
+
+        ComboBox<model.Priority> priorityBox =
+                new ComboBox<>();
+
+        priorityBox.getItems().addAll(
+                model.Priority.values()
+        );
+
+        priorityBox.setValue(
+                selectedTask.getPriority()
+        );
+
+        ComboBox<model.TaskStatus> statusBox =
+                new ComboBox<>();
+
+        statusBox.getItems().addAll(
+                model.TaskStatus.values()
+        );
+
+        statusBox.setValue(
+                selectedTask.getStatus()
+        );
+
+        VBox form = new VBox(
+                10,
+                new Label("Title"),
+                titleField,
+                new Label("Description"),
+                descriptionArea,
+                new Label("Priority"),
+                priorityBox,
+                new Label("Status"),
+                statusBox
+        );
+
+        form.setPadding(new Insets(10));
+
+        dialog.getDialogPane().setContent(form);
+
+        Button saveButton =
+                (Button) dialog.getDialogPane()
+                        .lookupButton(saveButtonType);
+
+        saveButton.setDisable(
+                titleField.getText().isBlank()
+        );
+
+        titleField.textProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        saveButton.setDisable(
+                                newValue == null ||
+                                        newValue.isBlank()
+                        )
+        );
+
+        dialog.showAndWait().ifPresent(result -> {
+
+            if (result == saveButtonType) {
+
+                taskManager.updateTask(
+                        selectedTask.getId(),
+                        titleField.getText(),
+                        descriptionArea.getText(),
+                        priorityBox.getValue(),
+                        statusBox.getValue()
+                );
+
+                taskTable.refresh();
+            }
+        });
+    }
+
+    private void deleteSelectedTask() {
+
+        Task selectedTask =
+                taskTable.getSelectionModel().getSelectedItem();
+
+        if (selectedTask == null) {
+            showWarning(
+                    "No task selected",
+                    "Please select a task to delete."
+            );
+            return;
+        }
+
+        Alert confirmation = new Alert(
+                Alert.AlertType.CONFIRMATION
+        );
+
+        confirmation.setTitle("Delete Task");
+        confirmation.setHeaderText(
+                "Delete \"" + selectedTask.getTitle() + "\"?"
+        );
+
+        confirmation.setContentText(
+                "This action cannot be undone."
+        );
+
+        confirmation.showAndWait().ifPresent(result -> {
+
+            if (result == ButtonType.OK) {
+
+                taskManager.removeTask(
+                        selectedTask.getId()
+                );
+
+                tasks.remove(selectedTask);
+            }
+        });
+    }
+
+    private void showWarning(
+            String title,
+            String message
+    ) {
+
+        Alert alert = new Alert(
+                Alert.AlertType.WARNING
+        );
+
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 }
