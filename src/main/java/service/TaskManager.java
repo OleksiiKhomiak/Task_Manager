@@ -9,16 +9,31 @@ import model.User;
 import java.util.ArrayList;
 import java.util.List;
 
+import database.TaskRepository;
+
 public class TaskManager {
 
+    private TaskRepository taskRepository;
     private List<User> users;
     private List<Project> projects;
     private List<Task> tasks;
 
     public TaskManager() {
+        this(null);
+    }
+
+    public TaskManager(TaskRepository taskRepository) {
         this.users = new ArrayList<>();
         this.projects = new ArrayList<>();
         this.tasks = new ArrayList<>();
+
+        this.taskRepository = taskRepository;
+
+        if (taskRepository != null) {
+            this.tasks.addAll(
+                    taskRepository.findAll()
+            );
+        }
     }
 
     public void addUser(User user) {
@@ -42,6 +57,10 @@ public class TaskManager {
         }
 
         tasks.add(task);
+
+        if (taskRepository != null) {
+            taskRepository.save(task);
+        }
     }
 
     public Task getTaskById(int id) {
@@ -105,6 +124,10 @@ public class TaskManager {
         task.setPriority(priority);
         task.setStatus(status);
 
+        if (taskRepository != null) {
+            taskRepository.update(task);
+        }
+
         return true;
     }
 
@@ -116,6 +139,12 @@ public class TaskManager {
             return false;
         }
 
-        return tasks.remove(task);
+        boolean removed = tasks.remove(task);
+
+        if (removed && taskRepository != null) {
+            taskRepository.delete(id);
+        }
+
+        return removed;
     }
 }

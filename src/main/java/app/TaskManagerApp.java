@@ -8,32 +8,20 @@ import model.Task;
 import model.TaskStatus;
 import service.TaskManager;
 import view.MainView;
+import database.DatabaseManager;
+import database.TaskRepository;
 
 public class TaskManagerApp extends Application {
 
     @Override
     public void start(Stage stage) {
+        DatabaseManager.initializeDatabase();
 
-        TaskManager taskManager = new TaskManager();
+        TaskRepository taskRepository =
+                new TaskRepository();
 
-        Task task1 = new Task(
-                1,
-                "Finish PDP",
-                "Finish Personal Development Plan",
-                Priority.HIGH
-        );
-
-        Task task2 = new Task(
-                2,
-                "Build JavaFX interface",
-                "Create GUI for Task Manager",
-                Priority.MEDIUM
-        );
-
-        task2.setStatus(TaskStatus.IN_PROGRESS);
-
-        taskManager.createTask(task1);
-        taskManager.createTask(task2);
+        TaskManager taskManager =
+                new TaskManager(taskRepository);
 
         MainView mainView = new MainView(taskManager);
 
